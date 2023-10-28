@@ -188,12 +188,21 @@ class TFDB.Rocket
 		}
 	}
 
-	function CheckSteal(hDeflector)
+	function CheckSteal(hRocketEntity, hDeflector)
 	{
 		if (!(this.Target != hDeflector &&
 		    ((this.Target.GetOrigin() - hDeflector.GetOrigin()).Length() > TFDB.StealDistance) &&
 		    (!(this.Flags & TFDB.RocketFlags.StealTeamCheck) || (this.Target.GetTeam() == hDeflector.GetTeam())) &&
 		    !(this.State & TFDB.RocketStates.Delayed)))
+		{
+			return;
+		}
+
+		this.State = this.State | TFDB.RocketStates.Stolen;
+
+		if (TFDB.NoDamageOnSteal) SetPropFloat(hRocketEntity, "m_flDamage", 0);
+
+		if (this.Flags & TFDB.RocketFlags.CanBeStolen)
 		{
 			return;
 		}
@@ -210,8 +219,6 @@ class TFDB.Rocket
 			hDeflector.TakeDamage(hDeflector.GetHealth(), 0, null);
 			CPrintToChat(hDeflector, "You have been slain for stealing rockets.");
 		}
-
-		this.State = this.State | TFDB.RocketStates.Stolen;
 	}
 
 	function CheckDelay(hRocketEntity)

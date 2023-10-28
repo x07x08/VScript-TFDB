@@ -196,7 +196,7 @@ function TFDB::PlayerThink()
 
 function TFDB::BotThink()
 {
-	if (!::TFDB.IsEnabled || !::TFDB.RoundStarted || !::TFDB.BotDeflect) return;
+	if (!::TFDB.IsEnabled || !::TFDB.RoundStarted || !::TFDB.BotDeflect || !IsPlayerAlive(self)) return;
 
 	// https://github.com/Scags/TF2-Auto-Airblast/blob/master/tf/addons/sourcemod/scripting/autoairblast.sp
 
@@ -254,7 +254,6 @@ function TFDB::SpawnerThink()
 	}
 
 	if (!::TFDB.IsEnabled ||
-	    !BothTeamsPlaying() ||
 	    (GetPropInt(self, "m_iHealth") != 1) ||
 	    (Time() < hSpawner.NextSpawnTime) ||
 	    !::TFDB.RoundStarted ||
@@ -552,12 +551,7 @@ function TFDB::OnObjectDeflected(hParams)
 		hRocket.Speed = hRocket.Type.SpeedLimit;
 	}
 
-	if (!(hRocket.Flags & TFDB.RocketFlags.CanBeStolen)) hRocket.CheckSteal(hDeflector);
-
-	if (TFDB.NoDamageOnSteal && (hRocket.State & TFDB.RocketStates.Stolen))
-	{
-		SetPropFloat(hDeflected, "m_flDamage", 0);
-	}
+	hRocket.CheckSteal(hDeflected, hDeflector);
 }
 
 function TFDB::OnScriptHook_OnTakeDamage(hParams)
