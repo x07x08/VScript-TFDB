@@ -18,6 +18,7 @@ This is just the [YADB / TFDB](https://github.com/x07x08/TF2-Dodgeball-Modified)
 
 1. Sometimes "fake deflects" can be triggered.
 2. Custom models aren't added to the downloads table.
+3. Rockets (rather grenades) can't explode when touching the ground.
 
 # To-do
 
