@@ -20,7 +20,7 @@ This is just the [YADB / TFDB](https://github.com/x07x08/TF2-Dodgeball-Modified)
 2. Custom models aren't added to the downloads table.
 3. Rockets (rather grenades) can't explode when touching the ground.
 
-# To-do
+# Gameplay and balance ideas
 
 1. Make each flamethrower unique in some way.
 2. Make this gamemode actually fun and team-oriented.
