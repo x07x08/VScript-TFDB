@@ -23,4 +23,4 @@ This is just the [YADB / TFDB](https://github.com/x07x08/TF2-Dodgeball-Modified)
 # To-do
 
 1. Make each flamethrower unique in some way.
-2. Make this gamemode actually fun and team-based.
+2. Make this gamemode actually fun and team-oriented.
