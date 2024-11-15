@@ -3,6 +3,19 @@ function IsPlayerAlive(hClient)
 	return GetPropInt(hClient, "m_lifeState") == LIFE_ALIVE;
 }
 
+function CreateAttachedParticle(hEntity, strParticleName, iAttachmentType, strBone)
+{
+	local hParticle = SpawnEntityFromTable("trigger_particle", {
+		particle_name = strParticleName,
+		attachment_type = iAttachmentType,
+		spawnflags = 64,
+		attachment_name = strBone
+	});
+
+	hParticle.AcceptInput("StartTouch", "!activator", hEntity, hEntity);
+	hParticle.Kill();
+}
+
 function IsValidClient(hClient, bAlive = false)
 {
 	try

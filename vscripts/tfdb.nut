@@ -1,4 +1,5 @@
-ClearGameEventCallbacks();
+// ClearGameEventCallbacks() is now obsolete
+// The code is already prepared for this
 
 local strScripts =
 [
@@ -39,6 +40,7 @@ TFDB.DamageOnlyTarget <- false;
 TFDB.TraceLength <- 16;
 TFDB.BotDeflect <- true;
 TFDB.BotDeflectRadius <- 198;
+TFDB.MaxTrails <- 32;
 
 TFDB.RocketTypes <- [];
 TFDB.SpawnerTypes <- {};
@@ -75,18 +77,23 @@ function TFDB::Explosion(hCmdTable)
 	{
 		case 0 :
 			PlayParticle(TFDB.PARTICLE_NUKE_1, vClientPosition, TFDB.PARTICLE_NUKE_1_ANGLES);
+
 			break;
 		case 1 :
 			PlayParticle(TFDB.PARTICLE_NUKE_2, vClientPosition, TFDB.PARTICLE_NUKE_2_ANGLES);
+
 			break;
 		case 2 :
 			PlayParticle(TFDB.PARTICLE_NUKE_3, vClientPosition, TFDB.PARTICLE_NUKE_3_ANGLES);
+
 			break;
 		case 3 :
 			PlayParticle(TFDB.PARTICLE_NUKE_4, vClientPosition, TFDB.PARTICLE_NUKE_4_ANGLES);
+
 			break;
 		case 4 :
 			PlayParticle(TFDB.PARTICLE_NUKE_5, vClientPosition, TFDB.PARTICLE_NUKE_5_ANGLES);
+
 			break;
 	}
 
@@ -542,9 +549,7 @@ function TFDB::OnObjectDeflected(hParams)
 	hRocket.LastDeflectionTime = Time();
 	hRocket.Speed = hRocket.Type.CalculateSpeed(fModifier);
 	SetPropFloat(hDeflected, "m_flDamage", hRocket.Type.CalculateDamage(fModifier));
-	SetPropInt(hRocket.Projectile, "m_iTeamNum", GetPropInt(hDeflected, "m_iTeamNum"));
-	SetPropInt(hRocket.Projectile, "m_iDeflected", hRocket.Deflections % 2);
-	SetPropEntity(hRocket.Projectile, "m_hOwnerEntity", hDeflector);
+	hRocket.UpdateParticles(hDeflected, GetPropInt(hDeflected, "m_iTeamNum"));
 
 	if ((hRocket.Flags & TFDB.RocketFlags.IsSpeedLimited) && (hRocket.Speed >= hRocket.Type.SpeedLimit))
 	{

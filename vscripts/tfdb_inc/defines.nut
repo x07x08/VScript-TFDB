@@ -78,7 +78,7 @@ class TFDB.Rocket
 {
 	Type               = null;
 	Target             = null;
-	Projectile         = null;
+	Particle           = null;
 	Flags              = TFDB.RocketFlags.None;
 	State              = TFDB.RocketStates.None;
 	Speed              = 0.0;
@@ -177,7 +177,6 @@ class TFDB.Rocket
 	{
 		hRocketEntity.SetAbsVelocity(this.Direction.Scale(this.Speed));
 		hRocketEntity.SetForwardVector(this.Direction);
-		this.Projectile.SetAbsAngles(hRocketEntity.GetAbsAngles());
 	}
 
 	function ExecuteCommands(hFuncs, hCommandTable)
@@ -245,7 +244,7 @@ class TFDB.Rocket
 
 	function HomingThink(hRocketEntity)
 	{
-		if (!TFDB.IsEnabled || !TFDB.RoundStarted || !this.Projectile.IsValid())
+		if (!TFDB.IsEnabled || !TFDB.RoundStarted)
 		{
 			hRocketEntity.Kill();
 
@@ -440,6 +439,65 @@ class TFDB.Rocket
 			this.Direction = vBounceDirection;
 		}
 	}
+
+	function UpdateParticles(hRocketEntity, iTeam)
+	{
+		if ((this.Deflections - 1) < TFDB.MaxTrails)
+		{
+			CreateAttachedParticle(hRocketEntity, "rockettrail", PATTACH_ABSORIGIN_FOLLOW, "");
+		}
+
+		if (this.Particle != null)
+		{
+			this.Particle.Kill();
+			this.Particle = null;
+		}
+
+		if (GetPropInt(hRocketEntity, "m_bCritical") != 1)
+		{
+			return;
+		}
+
+		local strEffect = "eyeboss_projectile";
+
+		switch (iTeam)
+		{
+			case TF_TEAM_BLUE:
+				strEffect = "critical_rocket_blue";
+
+				break;
+			case TF_TEAM_RED:
+				strEffect = "critical_rocket_red";
+
+				break;
+		}
+
+		local hParticleEntity = SpawnEntityFromTable("info_particle_system", {
+			start_active = true,
+			effect_name = strEffect
+		});
+
+		if (hParticleEntity == null)
+		{
+			return;
+		}
+
+		hParticleEntity.Teleport(
+			true, hRocketEntity.GetOrigin(),
+			true, hRocketEntity.GetAbsAngles(),
+			false, Vector()
+		);
+
+		// EntFire doesn't seem to work? I wasted too much time on this
+		hParticleEntity.AcceptInput("SetParent", "!activator", hRocketEntity, hParticleEntity);
+
+		if (hRocketEntity.LookupAttachment("trail") != 0)
+		{
+			hParticleEntity.AcceptInput("SetParentAttachment", "trail", null, hParticleEntity);
+		}
+
+		this.Particle = hParticleEntity;
+	}
 }
 
 class TFDB.RocketType
@@ -615,40 +673,9 @@ class TFDB.Spawner
 		SetPropInt(hRocketEntity, "m_nNextThinkTick", -1);
 		SetPropFloat(hRocketEntity, "m_flDamage", hRocket.Type.CalculateDamage(fModifier));
 
-		local hProjectileEntity = Entities.CreateByClassname("tf_projectile_rocket");
-
-		if (hProjectileEntity == null)
-		{
-			hRocketEntity.Kill();
-
-			return;
-		}
-
-		hProjectileEntity.Teleport(
-			true, hSpawnerEntity.GetOrigin(),
-			true, vAngles,
-			false, Vector()
-		);
-
-		Entities.DispatchSpawn(hProjectileEntity);
-		DoEntFire("!self", "SetParent", "!activator", 0, hRocketEntity, hProjectileEntity);
-		hRocket.Projectile = hProjectileEntity;
-
-		SetPropInt(hProjectileEntity, "m_bCritical", GetPropInt(hRocketEntity, "m_bCritical"));
-		SetPropInt(hProjectileEntity, "m_iTeamNum", GetPropInt(hRocketEntity, "m_iTeamNum"));
-		SetPropInt(hProjectileEntity, "m_iDeflected", 0);
-		SetPropInt(hProjectileEntity, "m_CollisionGroup", TFCOLLISION_GROUP_RESPAWNROOMS);
-		SetPropInt(hProjectileEntity, "m_usSolidFlags", FSOLID_TRIGGER);
-		SetPropInt(hProjectileEntity, "m_nSolidType", SOLID_NONE);
-		SetPropInt(hProjectileEntity, "m_MoveType", MOVETYPE_PUSH);
-		SetPropInt(hProjectileEntity, "m_MoveCollide", MOVECOLLIDE_DEFAULT);
-		SetPropInt(hProjectileEntity, "m_nRenderMode", kRenderNone);
-		SetPropEntity(hProjectileEntity, "m_hOwnerEntity", hRocketOwner);
-		SetPropEntity(hProjectileEntity, "m_hOriginalLauncher", hProjectileEntity);
-		SetPropEntity(hProjectileEntity, "m_hLauncher", hProjectileEntity);
-
 		SetPropInt(hRocketEntity, "m_nModelIndexOverrides", GetModelIndex((iFlags & TFDB.RocketFlags.CustomModel) ? hRocket.Type.Model : TFDB.ROCKET_MODEL));
 		hRocket.UpdateSkin(hRocketEntity, hSpawnerTeam);
+		hRocket.UpdateParticles(hRocketEntity, hSpawnerTeam);
 
 		if (iFlags & TFDB.RocketFlags.OnSpawnCmd)
 		{
