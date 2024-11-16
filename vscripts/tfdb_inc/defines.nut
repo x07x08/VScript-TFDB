@@ -449,7 +449,15 @@ class TFDB.Rocket
 
 		if (this.Particle != null)
 		{
-			this.Particle.Kill();
+			if (this.Particle.IsValid())
+			{
+				this.Particle.Kill();
+			} else {
+				this.Particle = null;
+
+				return;
+			}
+
 			this.Particle = null;
 		}
 
