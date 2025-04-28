@@ -12,7 +12,7 @@ This is just the [YADB / TFDB](https://github.com/x07x08/TF2-Dodgeball-Modified)
 # How to run
 
 1. Paste the `vscripts` folder in `tf/scripts`.
-2. Either execute the script by using `script_execute tfdb` or pack it inside a map and run it in some way.
+2. Either execute the script by using `script_execute tfdb/tfdb` or pack it inside a map and run it in some way.
 
 # Issues
 
