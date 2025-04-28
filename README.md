@@ -13,13 +13,3 @@ This is just the [YADB / TFDB](https://github.com/x07x08/TF2-Dodgeball-Modified)
 
 1. Paste the `vscripts` folder in `tf/scripts`.
 2. Either execute the script by using `script_execute tfdb/tfdb` or pack it inside a map and run it in some way.
-
-# Issues
-
-1. Custom models aren't added to the downloads table.
-2. Rockets (rather grenades) can't explode when touching the ground.
-
-# Gameplay and balance ideas
-
-1. Make each flamethrower unique in some way.
-2. Make this gamemode actually fun and team-oriented.
